@@ -1,4 +1,4 @@
-Albania,ALL,Lek
+﻿Albania,ALL,Lek
 Afghanistan,AFN,؋
 Argentina,ARS,$
 Aruba,AWG,ƒ

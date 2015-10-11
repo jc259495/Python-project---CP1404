@@ -1,65 +1,46 @@
-__author__ = 'Hansen'
+s__author__ = 'Hansen'
 
 
 def convert(amount, home_currency_code, location_currency_code):
+    """This function takes an amount of money from
+    one currency and converts it to another."""
 
     if not isinstance(home_currency_code, str) and isinstance(location_currency_code, str) \
-            and isinstance(amount, (float, int)):
-        return int(-1)
+            and isinstance(amount, (float, int)):  # Checking that the inputs for the function is in the correct format
+        return -1  # if not in the correct format, return -1.
 
     try:
-        import web_utility
+        import web_utility  # Use the web_utility module.
         url_string = str("https://www.google.com/finance/converter?a=%s&from=%s&to=%s" % (amount,
                          home_currency_code, location_currency_code))
-        result = web_utility.load_page(url_string)
-    except:  # All exceptions
-        return int(-1)
-    converted_amount = float(result[(result.find('<span class=bld>') + 16):(result.find('</span>')-4)])
-    return converted_amount
+        result = web_utility.load_page(url_string)  # Load the url with specified parameters and return the result URL
+    except:  # All errors, return -1.
+        return -1
+    return float(result[(result.find('<span class=bld>') + 16):(result.find('</span>')-4)])  # Cut the returned URL
+    #  so that only the converted amount is returned.
 
 
 def get_details(country_name):
 
-    if not isinstance(country_name, str):
+    if not isinstance(country_name, str):  # Check that the given input is in the str format, otherwise return -1.
         return ""
 
-    try:
-        in_file = open('currency_details.txt', 'r', encoding="UTF-8")
-    except:  # All exceptions.
+    try:  # Try and open the file in read only mode.
+        with open('currency_details.txt', 'r', encoding="UTF-8") as currency_file:
+                content = currency_file.readlines()
+    except:  # For all errors, return an empty string.
         return ""
 
-    content = in_file.readlines()
-    for line in content:
-        if country_name.lower() in line.lower():
-            return line
-    in_file.close()
-    return ""
+    for line in content:  # Read the content of the file and look for any matches by iterating through each line.
+        if country_name.lower() in line.lower():  # Make sure that capitals are not an anomaly.
+            currency_file.close()
+            return line  # If country found, close the file and return the corresponding line.
+    currency_file.close()
+    return ""  # If not found, close file and return an empty string.
 
 
-print(convert("100", "AUD", "JPY"))
-print(get_details("Japan"))
+def write_details(name, code, symbol):  # If needed, open the file and write a new country, code and symbol.
 
-"""
-
-def write_details(name, code, symbol):
-
-    outfile = open("currency_details.txt", "w", encoding="UTF-8")
-    infile = open("currency_details.txt", "r", encoding="UTF-8")
-    content = infile.readline()
-    for line in content:
-        print('r')
-        if line > name:
-            outfile.write('%s,%s,%s' % (name, code, symbol))
-            return print('r')
-    outfile.close()
-
-def file_length():
-    in_file = open("currency_details.txt", "r", encoding="UTF-8")
-    total = 0
-    for line in in_file:
-        number = int(line)
-        total += number
-    print(total)
-    in_file.close()
-
-"""
+    with open("currency_details.txt", "a", encoding="UTF-8") as currency_file:
+        currency_file.write("%s, %s, %s" % (name, code, symbol))
+        currency_file.close()
